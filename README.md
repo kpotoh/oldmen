@@ -41,8 +41,9 @@ bwa index data/interim/mapping/ref/NC_012920.1.fasta
 for r1 in data/interim/trimmed/Kgd-mtDNA-S*.trimmed.R1.fastq.gz
   do 
     r2=${r1/R1/R2}
-    bn=`basename $r1`
-    lbl=(${bn//./ })
+    # bn=`basename $r1`
+    # lbl=(${bn//./ })
+    lbl=`basename $r1 ".trimmed.R1.fastq.gz"`
     echo $lbl
     bwa mem -t 24 data/interim/mapping/ref/NC_012920.1.fasta $r1 $r2 | samtools sort -O bam > data/interim/mapping/${lbl}.bam
   done
@@ -51,12 +52,18 @@ for r1 in data/interim/trimmed/Kgd-mtDNA-S*.trimmed.R1.fastq.gz
 ### Mapping stats
 
 ```bash
-for file in data/interim/mapping/Kgd-mtDNA-S*.bam
+for bam in data/interim/mapping/Kgd-mtDNA-S*.bam
   do
-    basename file '.bam'
-    samtools flagstat $file -O tsv | grep "mapped %"
+    basename $bam '.bam'
+    samtools flagstat $bam -O tsv | grep "mapped %"
     echo
   done
+```
+
+### Depth
+
+```bash
+samtools depth -H -q 20 data/interim/mapping/*.bam > data/interim/depth.tsv
 ```
 
 ## Hints
